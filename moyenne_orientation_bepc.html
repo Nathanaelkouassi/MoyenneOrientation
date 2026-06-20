@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcul Moyenne d'Orientation — BEPC</title>
+<style>
+  :root{
+    --vert-ci: #00854a;
+    --vert-fonce: #0a5c36;
+    --orange-ci: #f5821f;
+    --orange-fonce: #c9650f;
+    --encre: #1c2622;
+    --papier: #fbfaf6;
+    --papier-ligne: #f1f0e8;
+    --gris-texte: #5b655f;
+    --bordure: #cfd6cd;
+    --rouge-alerte: #b3261e;
+    --vert-admis: #0a5c36;
+    font-family: 'Georgia', 'Times New Roman', serif;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--papier-ligne);
+    color: var(--encre);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    padding: 24px 14px 60px;
+  }
+
+  .feuille{
+    max-width: 980px;
+    margin: 0 auto;
+    background: var(--papier);
+    border: 1px solid var(--bordure);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(10,40,25,0.05);
+  }
+
+  /* ----- En-tête institutionnel ----- */
+  .entete{
+    display:flex;
+    align-items:center;
+    gap: 18px;
+    padding: 22px 28px 18px;
+    border-bottom: 3px solid var(--vert-ci);
+    background: linear-gradient(180deg, #fff 0%, var(--papier) 100%);
+  }
+  .blason{
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: conic-gradient(var(--orange-ci) 0deg 120deg, #fff 120deg 240deg, var(--vert-ci) 240deg 360deg);
+    flex-shrink:0;
+    border: 1px solid var(--bordure);
+  }
+  .entete-texte h1{
+    margin:0;
+    font-family: 'Georgia', serif;
+    font-size: 1.32rem;
+    letter-spacing: 0.3px;
+    color: var(--vert-fonce);
+  }
+  .entete-texte p{
+    margin: 2px 0 0;
+    font-size: 0.82rem;
+    color: var(--gris-texte);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .sous-bandeau{
+    padding: 10px 28px;
+    background: var(--vert-fonce);
+    color: #fff;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display:flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .sous-bandeau span.tag{
+    background: var(--orange-ci);
+    color: #2a1503;
+    padding: 1px 8px;
+    border-radius: 2px;
+    font-weight: 700;
+  }
+
+  .corps{ padding: 26px 28px 10px; }
+
+  .note-confidentialite{
+    font-size: 0.82rem;
+    color: var(--gris-texte);
+    border-left: 3px solid var(--orange-ci);
+    padding: 8px 14px;
+    background: #fff8ee;
+    margin: 0 0 22px;
+  }
+
+  /* ----- Tableau de saisie ----- */
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+  }
+  caption{
+    text-align:left;
+    font-family: 'Georgia', serif;
+    font-size: 1rem;
+    color: var(--vert-fonce);
+    padding-bottom: 8px;
+    font-weight: 700;
+  }
+  thead th{
+    background: var(--vert-fonce);
+    color: #fff;
+    font-weight: 600;
+    padding: 9px 6px;
+    text-align: center;
+    font-size: 0.78rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    border: 1px solid var(--vert-fonce);
+  }
+  tbody td{
+    border: 1px solid var(--bordure);
+    padding: 5px 6px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  tbody tr:nth-child(even){ background: #f7f6f0; }
+  tbody tr.coeff-fort{ border-left: 3px solid var(--orange-ci); }
+
+  td.matiere{
+    text-align:left;
+    font-weight: 600;
+    color: var(--vert-fonce);
+    white-space: nowrap;
+  }
+
+  input[type=number]{
+    width: 56px;
+    padding: 5px 4px;
+    border: 1px solid var(--bordure);
+    border-radius: 3px;
+    text-align: center;
+    font-size: 0.86rem;
+    background: #fff;
+  }
+  input[type=number]:focus{
+    outline: none;
+    border-color: var(--vert-ci);
+    box-shadow: 0 0 0 2px rgba(0,133,74,0.15);
+  }
+  input.anglais-oe{ width: 42px; }
+  .anglais-pair{ display:flex; gap:4px; justify-content:center; align-items:center; }
+  .anglais-pair small{ color: var(--gris-texte); font-size: 0.68rem; }
+
+  td.moy-an, td.total, td.totalp{
+    font-weight: 700;
+    color: var(--vert-fonce);
+    background: #eef6f0;
+  }
+  td.coeff{
+    font-weight: 700;
+    color: var(--orange-fonce);
+  }
+  .vide{ color: #b6bdb3; }
+
+  tfoot td{
+    border: 1px solid var(--bordure);
+    padding: 9px 6px;
+    font-weight: 700;
+    background: #f1f0e8;
+  }
+  tfoot td.label-total{
+    text-align: right;
+    color: var(--vert-fonce);
+  }
+
+  /* ----- Verdict / Signature ----- */
+  .verdict{
+    margin: 28px 0 8px;
+    padding: 22px 26px;
+    background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-ci) 100%);
+    color: #fff;
+    border-radius: 4px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    box-shadow: 0 6px 16px rgba(10,92,54,0.25);
+  }
+  .verdict .mo-chiffre{
+    font-family: 'Georgia', serif;
+    font-size: 2.6rem;
+    line-height: 1;
+  }
+  .verdict .mo-chiffre small{
+    font-size: 1rem;
+    font-weight: 400;
+    opacity: 0.85;
+  }
+  .verdict .mo-label{
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    opacity: 0.9;
+  }
+  .verdict .statut{
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.4px;
+  }
+  .statut.science{ background: var(--orange-ci); color: #2a1503; }
+  .statut.lettre{ background: #fff; color: var(--vert-fonce); }
+  .statut.indetermine{ background: rgba(255,255,255,0.2); color: #fff; }
+
+  .bilans{
+    display:flex;
+    gap: 14px;
+    margin: 14px 0 0;
+    flex-wrap: wrap;
+  }
+  .bilan-carte{
+    flex: 1;
+    min-width: 140px;
+    background: #fff;
+    border: 1px solid var(--bordure);
+    border-top: 3px solid var(--vert-ci);
+    padding: 12px 14px;
+    border-radius: 3px;
+  }
+  .bilan-carte h4{
+    margin:0 0 4px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--gris-texte);
+  }
+  .bilan-carte p{
+    margin:0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--vert-fonce);
+  }
+
+  .barre-actions{
+    display:flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 18px 28px 26px;
+    flex-wrap: wrap;
+  }
+  button{
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.15s ease;
+  }
+  button:active{ transform: translateY(1px); }
+  .btn-calculer{
+    background: var(--orange-ci);
+    color: #2a1503;
+  }
+  .btn-calculer:hover{ background: var(--orange-fonce); }
+  .btn-effacer{
+    background: transparent;
+    color: var(--gris-texte);
+    border: 1px solid var(--bordure);
+  }
+  .btn-effacer:hover{ border-color: var(--rouge-alerte); color: var(--rouge-alerte); }
+
+  .explication{
+    font-size: 0.78rem;
+    color: var(--gris-texte);
+    padding: 0 28px 22px;
+    line-height: 1.5;
+    border-top: 1px solid var(--bordure);
+    margin-top: 4px;
+    padding-top: 16px;
+  }
+  .explication code{
+    background: #eee;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 720px){
+    .corps{ padding: 18px 12px; }
+    table{ font-size: 0.74rem; }
+    input[type=number]{ width: 42px; padding: 4px 2px; }
+    .entete{ padding: 16px; }
+    .verdict{ padding: 18px; }
+    .verdict .mo-chiffre{ font-size: 2rem; }
+    .barre-actions, .explication, .sous-bandeau{ padding-left: 14px; padding-right: 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    button{ transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="feuille">
+
+  <div class="entete">
+    <div class="blason" aria-hidden="true"></div>
+    <div class="entete-texte">
+      <h1>Calcul de la Moyenne d'Orientation</h1>
+      <p>BEPC — Sans matricule · Saisie locale uniquement</p>
+    </div>
+  </div>
+
+  <div class="sous-bandeau">
+    <span>République de Côte d'Ivoire</span>
+    <span class="tag">12 points de coefficient</span>
+  </div>
+
+  <div class="corps">
+
+    <p class="note-confidentialite">
+      Aucune information d'identité n'est demandée. Les notes saisies restent dans cette page et ne sont envoyées à aucun serveur.
+    </p>
+
+    <table>
+      <caption>Relevé des notes par matière</caption>
+      <thead>
+        <tr>
+          <th>Matière</th>
+          <th>Trim. 1</th>
+          <th>Trim. 2</th>
+          <th>Trim. 3</th>
+          <th>Moy. AN</th>
+          <th>Note BEPC</th>
+          <th>Total P</th>
+          <th>Coeff</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="corps-tableau">
+        <!-- généré en JS -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="7" class="label-total">TOTAUX</td>
+          <td id="total-coeff">—</td>
+          <td id="total-points">—</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="verdict">
+      <div>
+        <div class="mo-label">Moyenne d'orientation (MO)</div>
+        <div class="mo-chiffre" id="mo-valeur">—<small> /20</small></div>
+      </div>
+      <div class="statut indetermine" id="mo-statut">En attente de saisie</div>
+    </div>
+
+    <div class="bilans">
+      <div class="bilan-carte">
+        <h4>Bilan Lettres</h4>
+        <p id="bilan-lettre">—</p>
+      </div>
+      <div class="bilan-carte">
+        <h4>Bilan Sciences</h4>
+        <p id="bilan-science">—</p>
+      </div>
+      <div class="bilan-carte">
+        <h4>Série(s) proposée(s)</h4>
+        <p id="serie-proposee">—</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="barre-actions">
+    <button class="btn-effacer" id="btn-effacer" type="button">Effacer toutes les notes</button>
+    <button class="btn-calculer" id="btn-calculer" type="button">Calculer la moyenne d'orientation</button>
+  </div>
+
+  <div class="explication">
+    <strong>Méthode de calcul</strong><br>
+    Moy. AN = moyenne simple des trois trimestres.<br>
+    Note BEPC = note d'examen (pour l'Anglais, moyenne entre l'épreuve Écrite et l'épreuve Orale : (É+O)/2).<br>
+    Total P = (Moy. AN + Note BEPC) / 2 — moyenne entre le travail de l'année et l'examen.<br>
+    Total = Total P × Coefficient de la matière.<br>
+    MO = somme des Totaux ÷ somme des Coefficients (12).<br>
+    Le Bilan Lettres regroupe Français, Anglais, LV2, Histoire-Géo, Orthographe ; le Bilan Sciences regroupe Mathématiques, Physique-Chimie, SVT. La série proposée (Lettres / Sciences / Indéterminé) est une estimation indicative, la décision finale relevant de l'établissement.
+  </div>
+
+</div>
+
+<script>
+(function(){
+
+  // Structure officielle SYGDOB : matière, coefficient, bilan (lettre/science/neutre), anglais avec E/O
+  const MATIERES = [
+    { id: 'francais',  nom: 'Composition Française', coeff: 2, bilan: 'lettre' },
+    { id: 'maths',     nom: 'Mathématiques',          coeff: 2, bilan: 'science' },
+    { id: 'pc',        nom: 'Physique-Chimie',        coeff: 1, bilan: 'science' },
+    { id: 'anglais',   nom: 'Anglais',                coeff: 1, bilan: 'lettre', eo: true },
+    { id: 'lv2',       nom: 'LV2',                     coeff: 1, bilan: 'lettre' },
+    { id: 'svt',       nom: 'SVT',                     coeff: 1, bilan: 'science' },
+    { id: 'histgeo',   nom: 'Histoire Géographie',     coeff: 2, bilan: 'lettre' },
+    { id: 'ortho',     nom: 'Orthographe',             coeff: 2, bilan: 'lettre' },
+  ];
+  // Total des coefficients = 2+2+1+1+1+1+2+2 = 12 (conforme au relevé officiel)
+
+  const corpsTableau = document.getElementById('corps-tableau');
+
+  function champ(id, classe, placeholder){
+    return `<input type="number" min="0" max="20" step="0.01" id="${id}" class="${classe||''}" placeholder="${placeholder||''}">`;
+  }
+
+  MATIERES.forEach(m => {
+    const tr = document.createElement('tr');
+    if(m.coeff >= 2) tr.classList.add('coeff-fort');
+
+    let celluleBepc;
+    if(m.eo){
+      celluleBepc = `
+        <div class="anglais-pair">
+          ${champ(m.id+'-e','anglais-oe','É')}
+          ${champ(m.id+'-o','anglais-oe','O')}
+        </div>
+        <small>Écrit / Oral</small>`;
+    } else {
+      celluleBepc = champ(m.id+'-bepc');
+    }
+
+    tr.innerHTML = `
+      <td class="matiere">${m.nom}</td>
+      <td>${champ(m.id+'-t1')}</td>
+      <td>${champ(m.id+'-t2')}</td>
+      <td>${champ(m.id+'-t3')}</td>
+      <td class="moy-an" id="${m.id}-moyan"><span class="vide">—</span></td>
+      <td>${celluleBepc}</td>
+      <td class="totalp" id="${m.id}-totalp"><span class="vide">—</span></td>
+      <td class="coeff">${m.coeff}</td>
+      <td class="total" id="${m.id}-total"><span class="vide">—</span></td>
+    `;
+    corpsTableau.appendChild(tr);
+  });
+
+  function val(id){
+    const el = document.getElementById(id);
+    if(!el) return null;
+    const v = parseFloat(el.value);
+    return isNaN(v) ? null : v;
+  }
+
+  function moyenne(valeurs){
+    const valides = valeurs.filter(v => v !== null);
+    if(valides.length === 0) return null;
+    return valides.reduce((a,b) => a+b, 0) / valides.length;
+  }
+
+  function afficheCellule(id, valeur){
+    const el = document.getElementById(id);
+    el.innerHTML = valeur === null ? '<span class="vide">—</span>' : valeur.toFixed(2);
+  }
+
+  function calculer(){
+    let sommeCoeffUtilises = 0;
+    let sommeTotaux = 0;
+    let bilanLettrePoints = 0, bilanLettreCoeff = 0;
+    let bilanSciencePoints = 0, bilanScienceCoeff = 0;
+    let auMoinsUneNote = false;
+
+    MATIERES.forEach(m => {
+      const t1 = val(m.id+'-t1');
+      const t2 = val(m.id+'-t2');
+      const t3 = val(m.id+'-t3');
+      const moyAn = moyenne([t1, t2, t3]);
+
+      let noteBepc;
+      if(m.eo){
+        const e = val(m.id+'-e');
+        const o = val(m.id+'-o');
+        noteBepc = moyenne([e, o]);
+      } else {
+        noteBepc = val(m.id+'-bepc');
+      }
+
+      afficheCellule(m.id+'-moyan', moyAn);
+
+      const totalP = moyenne([moyAn, noteBepc]);
+      afficheCellule(m.id+'-totalp', totalP);
+
+      let total = null;
+      if(totalP !== null){
+        total = totalP * m.coeff;
+        afficheCellule(m.id+'-total', total);
+        sommeTotaux += total;
+        sommeCoeffUtilises += m.coeff;
+        auMoinsUneNote = true;
+
+        if(m.bilan === 'lettre'){
+          bilanLettrePoints += total;
+          bilanLettreCoeff += m.coeff;
+        } else if(m.bilan === 'science'){
+          bilanSciencePoints += total;
+          bilanScienceCoeff += m.coeff;
+        }
+      } else {
+        afficheCellule(m.id+'-total', null);
+      }
+    });
+
+    document.getElementById('total-coeff').textContent = sommeCoeffUtilises > 0 ? sommeCoeffUtilises : '—';
+    document.getElementById('total-points').textContent = sommeTotaux > 0 ? sommeTotaux.toFixed(2) : '—';
+
+    const moEl = document.getElementById('mo-valeur');
+    const statutEl = document.getElementById('mo-statut');
+    const bilanLettreEl = document.getElementById('bilan-lettre');
+    const bilanScienceEl = document.getElementById('bilan-science');
+    const serieEl = document.getElementById('serie-proposee');
+
+    if(!auMoinsUneNote){
+      moEl.innerHTML = '—<small> /20</small>';
+      statutEl.textContent = 'En attente de saisie';
+      statutEl.className = 'statut indetermine';
+      bilanLettreEl.textContent = '—';
+      bilanScienceEl.textContent = '—';
+      serieEl.textContent = '—';
+      return;
+    }
+
+    const mo = sommeTotaux / sommeCoeffUtilises;
+    moEl.innerHTML = mo.toFixed(2) + '<small> /20</small>';
+
+    const bilanLettre = bilanLettreCoeff > 0 ? bilanLettrePoints / bilanLettreCoeff : null;
+    const bilanScience = bilanScienceCoeff > 0 ? bilanSciencePoints / bilanScienceCoeff : null;
+
+    bilanLettreEl.textContent = bilanLettre !== null ? bilanLettre.toFixed(2) + '/20' : '—';
+    bilanScienceEl.textContent = bilanScience !== null ? bilanScience.toFixed(2) + '/20' : '—';
+
+    if(mo >= 10){
+      statutEl.textContent = 'Admis(e)';
+      statutEl.className = 'statut science';
+    } else {
+      statutEl.textContent = 'Non admis(e)';
+      statutEl.className = 'statut indetermine';
+    }
+
+    if(bilanLettre !== null && bilanScience !== null){
+      if(Math.abs(bilanScience - bilanLettre) < 0.5){
+        serieEl.textContent = 'Indéterminé';
+      } else if(bilanScience > bilanLettre){
+        serieEl.textContent = 'Sciences';
+      } else {
+        serieEl.textContent = 'Lettres';
+      }
+    } else {
+      serieEl.textContent = '—';
+    }
+  }
+
+  function effacerTout(){
+    document.querySelectorAll('#corps-tableau input').forEach(el => el.value = '');
+    MATIERES.forEach(m => {
+      afficheCellule(m.id+'-moyan', null);
+      afficheCellule(m.id+'-totalp', null);
+      afficheCellule(m.id+'-total', null);
+    });
+    document.getElementById('total-coeff').textContent = '—';
+    document.getElementById('total-points').textContent = '—';
+    document.getElementById('mo-valeur').innerHTML = '—<small> /20</small>';
+    const statutEl = document.getElementById('mo-statut');
+    statutEl.textContent = 'En attente de saisie';
+    statutEl.className = 'statut indetermine';
+    document.getElementById('bilan-lettre').textContent = '—';
+    document.getElementById('bilan-science').textContent = '—';
+    document.getElementById('serie-proposee').textContent = '—';
+  }
+
+  document.getElementById('btn-calculer').addEventListener('click', calculer);
+  document.getElementById('btn-effacer').addEventListener('click', effacerTout);
+
+  // Recalcul automatique à la saisie (debounce léger)
+  let timer = null;
+  corpsTableau.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(calculer, 250);
+  });
+
+})();
+</script>
+
+</body>
+</html>
